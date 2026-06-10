@@ -54,4 +54,4 @@ def run_electricity_agent(input_data):
             
     except Exception as e:
         print(f"Error in Electricity Agent: {e}")
-        return ["No suggestions available due to an error."], electricity_emission
+        return [f"Error: {str(e)}"], electricity_emission
