@@ -1,3 +1,11 @@
+---
+title: Eco Opti Agent
+emoji: 🌱
+colorFrom: green
+colorTo: blue
+sdk: docker
+pinned: false
+---
 <div align="center">
   <img src="frontend/FullLogo_NoBuffer.jpg" alt="EcoOpti Logo" width="200" style="border-radius:10px; margin-bottom:20px;" />
   <h1>🌱 Eco-Opti-Agent</h1>
