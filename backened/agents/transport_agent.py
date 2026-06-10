@@ -33,11 +33,13 @@ transport_prompt = ChatPromptTemplate.from_messages([
 ])
 
 def run_transport_agent(input_data):
-    num_vehicles = input_data.get("num_vehicles", 0)
-    avg_km_per_day = input_data.get("avg_km_per_day", 0)
+    num_vehicles = input_data.get("number_of_diesel_vehicles", 0)
+    avg_km_per_day = input_data.get("average_km_per_vehicle_per_day", 0)
     
     transport_emission = calculate_transport_emissions(num_vehicles, avg_km_per_day)
     input_data["estimated_transport_emission"] = transport_emission
+    input_data["num_vehicles"] = num_vehicles
+    input_data["avg_km_per_day"] = avg_km_per_day
     
     try:
         _prompt = transport_prompt.partial(format_instructions=parser.get_format_instructions())
@@ -51,4 +53,4 @@ def run_transport_agent(input_data):
             
     except Exception as e:
         print(f"Error in Transport Agent: {e}")
-        return ["No transport suggestions available due to an error."], transport_emission
+        return [f"Error: {str(e)}"], transport_emission
