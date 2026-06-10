@@ -35,11 +35,13 @@ fuel_prompt = ChatPromptTemplate.from_messages([
 ])
 
 def run_fuel_agent(input_data):
-    uses_diesel = input_data.get("uses_diesel", False)
-    uses_lpg = input_data.get("uses_lpg", False)
+    uses_diesel = input_data.get("uses_diesel_generator", False)
+    uses_lpg = input_data.get("uses_lpg_or_propane", False)
     
     fuel_emission = calculate_fuel_emissions(uses_diesel, uses_lpg)
     input_data["estimated_fuel_emission"] = fuel_emission
+    input_data["uses_diesel"] = uses_diesel
+    input_data["uses_lpg"] = uses_lpg
     
     try:
         _prompt = fuel_prompt.partial(format_instructions=parser.get_format_instructions())
@@ -53,4 +55,4 @@ def run_fuel_agent(input_data):
             
     except Exception as e:
         print(f"Error in Fuel Agent: {e}")
-        return ["No fuel suggestions available due to an error."], fuel_emission
+        return [f"Error: {str(e)}"], fuel_emission
