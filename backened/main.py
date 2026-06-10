@@ -146,12 +146,7 @@ def analyze():
             "final_decision": "Implement the suggested transport and electricity optimizations. **Action:** Start with LED replacements. **Impact:** Immediate reduction in power consumption."
         })
         
-        # Map frontend keys to backend expected keys
-        data["monthly_electricity_bill"] = data.get("electricity_bill", 0)
-        data["number_of_diesel_vehicles"] = data.get("num_vehicles", 0)
-        data["average_km_per_vehicle_per_day"] = data.get("avg_km_per_day", 0)
-        data["uses_diesel_generator"] = data.get("uses_diesel", False)
-        data["uses_lpg_or_propane"] = data.get("uses_lpg", False)
+        # UI keys are already correctly named. No mapping needed.
         
         # Step 1: Run specialized agents sequentially and collect their outputs
         electricity_suggestions, electricity_emission = run_electricity_agent(data)
