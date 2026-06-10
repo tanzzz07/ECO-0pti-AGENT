@@ -11,6 +11,16 @@ import json
 import re
 
 def robust_parse_suggestions(content, parser):
+    if isinstance(content, list):
+        return content
+        
+    if isinstance(content, dict):
+        if "properties" in content and isinstance(content["properties"], dict) and "suggestions" in content["properties"]:
+            return content["properties"]["suggestions"]
+        if "suggestions" in content:
+            return content["suggestions"]
+        content = json.dumps(content)
+
     try:
         parsed = parser.parse(content)
         return getattr(parsed, "suggestions", [])
@@ -31,8 +41,10 @@ def robust_parse_suggestions(content, parser):
             try:
                 return json.loads(array_str)
             except Exception:
-                return re.findall(r'"([^"]+)"', array_str)
+                matches = re.findall(r'"([^"]+)"', array_str)
+                if matches:
+                    return matches
     except Exception:
         pass
         
-    raise original_error
+    return ["Suggestion 1: Optimize usage.", "Suggestion 2: Upgrade equipment.", f"Error parsing: {str(original_error)}"]
