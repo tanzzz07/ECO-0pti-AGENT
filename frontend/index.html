@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carbon Emission Analysis</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="FullLogo_NoBuffer.jpg" type="image/x-icon" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>
+          <img src="FullLogo_NoBuffer.jpg" alt="EcoOpti Logo" class="logo" />
+          Carbon Emission Analysis
+        </h1>
+        <p>Help us understand your environmental impact</p>
+      </header>
+
+      <form id="analysis-form">
+        <section class="card">
+          <h2>Section 1: Business Information</h2>
+          <div class="form-group">
+            <label for="business_type">Business Type</label>
+            <select id="business_type" name="business_type">
+              <option value="">Select your business type</option>
+              <option value="Retail Store">Retail Store</option>
+              <option value="Office">Office</option>
+              <option value="Restaurant">Restaurant</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Section 2: Electricity Usage</h2>
+          <div class="form-group">
+            <label for="lighting_type">Lighting Type</label>
+            <select id="lighting_type" name="lighting_type">
+              <option value="">Select lighting type</option>
+              <option value="LED">LED</option>
+              <option value="Fluorescent">Fluorescent</option>
+              <option value="Incandescent">Incandescent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="light_usage_hours_per_day"
+              >Average Light Usage Per Day:
+              <span id="light-usage-value">12</span> hours</label
+            >
+            <input
+              type="range"
+              id="light_usage_hours_per_day"
+              name="light_usage_hours_per_day"
+              min="0"
+              max="24"
+              value="12"
+            />
+          </div>
+          <div class="form-group">
+            <label for="number_of_ac_units">Number of AC Units</label>
+            <input
+              type="number"
+              id="number_of_ac_units"
+              name="number_of_ac_units"
+              placeholder="Enter number of AC units"
+              value="0"
+            />
+          </div>
+          <div class="form-group">
+            <label for="ac_usage_hours_per_day"
+              >Average AC Usage Per Day:
+              <span id="ac-usage-value">8</span> hours</label
+            >
+            <input
+              type="range"
+              id="ac_usage_hours_per_day"
+              name="ac_usage_hours_per_day"
+              min="0"
+              max="24"
+              value="8"
+            />
+          </div>
+          <div class="form-group">
+            <label for="monthly_electricity_bill"
+              >Monthly Electricity Bill (Optional)</label
+            >
+            <input
+              type="number"
+              id="monthly_electricity_bill"
+              name="monthly_electricity_bill"
+              placeholder="₹ amount or kWh"
+              value="0"
+            />
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Section 3: Fuel Usage</h2>
+          <div class="form-group">
+            <label>Do you use a diesel generator?</label>
+            <div class="radio-group">
+              <input
+                type="radio"
+                id="diesel-yes"
+                name="uses_diesel_generator"
+                value="true"
+              /><label for="diesel-yes">Yes</label>
+              <input
+                type="radio"
+                id="diesel-no"
+                name="uses_diesel_generator"
+                value="false"
+                checked
+              /><label for="diesel-no">No</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Do you use LPG or Propane?</label>
+            <div class="radio-group">
+              <input
+                type="radio"
+                id="lpg-yes"
+                name="uses_lpg_or_propane"
+                value="true"
+              /><label for="lpg-yes">Yes</label>
+              <input
+                type="radio"
+                id="lpg-no"
+                name="uses_lpg_or_propane"
+                value="false"
+                checked
+              /><label for="lpg-no">No</label>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Section 4: Transport</h2>
+          <div class="form-group">
+            <label for="number_of_diesel_vehicles"
+              >Number of Diesel Vehicles</label
+            >
+            <input
+              type="number"
+              id="number_of_diesel_vehicles"
+              name="number_of_diesel_vehicles"
+              placeholder="Enter number of diesel vehicles"
+              value="0"
+            />
+          </div>
+          <div class="form-group">
+            <label for="average_km_per_vehicle_per_day"
+              >Average KM Driven Per Vehicle Per Day</label
+            >
+            <input
+              type="number"
+              id="average_km_per_vehicle_per_day"
+              name="average_km_per_vehicle_per_day"
+              placeholder="Enter average KM per day"
+              value="0"
+            />
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Section 5: Sustainability</h2>
+          <div class="form-group">
+            <label>Do you use solar panels?</label>
+            <div class="radio-group">
+              <input
+                type="radio"
+                id="solar-yes"
+                name="uses_solar_panels"
+                value="true"
+              /><label for="solar-yes">Yes</label>
+              <input
+                type="radio"
+                id="solar-no"
+                name="uses_solar_panels"
+                value="false"
+                checked
+              /><label for="solar-no">No</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Do you use energy-efficient devices?</label>
+            <div class="radio-group">
+              <input
+                type="radio"
+                id="efficient-yes"
+                name="uses_energy_efficient_devices"
+                value="true"
+              /><label for="efficient-yes">Yes</label>
+              <input
+                type="radio"
+                id="efficient-no"
+                name="uses_energy_efficient_devices"
+                value="false"
+                checked
+              /><label for="efficient-no">No</label>
+            </div>
+          </div>
+        </section>
+
+        <button type="submit" class="submit-btn">Analyze Emissions</button>
+      </form>
+
+      <div id="results-area" class="results-area"></div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
