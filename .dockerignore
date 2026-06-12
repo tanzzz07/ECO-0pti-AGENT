@@ -1,0 +1,12 @@
+.git
+.github
+.agents
+.venv
+.vscode
+**/__pycache__
+**/*.py[cod]
+**/.env
+**/instance
+**/reports/generated_pdfs
+*.pdf
+Titillium_Web.zip

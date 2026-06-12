@@ -124,12 +124,17 @@ from models import User, Analysis
 
 # Serve static files from the frontend directory
 app = Flask(__name__, static_folder='../frontend', static_url_path='/')
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///ecoopti.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///ecoopti.db"
+)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-app.config["JWT_SECRET_KEY"] = (
-    "eco-opti-agent-super-secure-jwt-secret-key-for-development-2026"
-)
+jwt_secret_key = os.getenv("JWT_SECRET_KEY")
+if not jwt_secret_key:
+    raise RuntimeError("JWT_SECRET_KEY environment variable is required")
+
+app.config["JWT_SECRET_KEY"] = jwt_secret_key
 
 db.init_app(app)
 
@@ -539,4 +544,8 @@ def download_report(analysis_id):
     )    
 print(app.url_map)
 if __name__== '__main__':
-    app.run(host="0.0.0.0", port=7860, debug=False)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", "7860")),
+        debug=False
+    )
