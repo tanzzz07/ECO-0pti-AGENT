@@ -11,7 +11,7 @@ pinned: false
   <h1>🌱 Eco-Opti-Agent</h1>
   <p><strong>AI-Driven Carbon Optimization for Businesses</strong></p>
   
-  [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen.svg)](https://eco-opti-agent-g241.onrender.com)
+  [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen.svg)](https://huggingface.co/spaces/tanzz07/Eco-0pti_AGent))
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 </div>
 
