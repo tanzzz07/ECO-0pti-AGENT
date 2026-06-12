@@ -38,7 +38,7 @@ Eco-Opti-Agent is a full-stack, multi-agent AI system designed to intelligently 
 
 ## 🚀 Live Demo
 
-Check out the live application here: **[Eco-Opti-Agent Live](https://eco-opti-agent-g241.onrender.com)**
+Check out the live application here: **[Eco-Opti-Agent Live](https://huggingface.co/spaces/tanzz07/Eco-0pti_AGent)**
 
 *(Note: The demo gracefully degrades to use mock data if an API key is not provided).*
 
@@ -72,7 +72,7 @@ Check out the live application here: **[Eco-Opti-Agent Live](https://eco-opti-ag
    ```bash
    python main.py
    ```
-   Navigate to `http://localhost:5000` in your browser.
+   Navigate to `http://localhost:7860` in your browser.
 
 ## ☁️ Render Deployment
 
@@ -122,7 +122,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## 📞 Support
 
 For any questions, support, or collaboration, please contact:
-📧 **patrasatyaprakash73@gmail.com**
+📧 **tanmaypradhan31@gmail.com**
 
 ---
 <div align="center">
