@@ -1,9 +1,0 @@
-flask
-flask-cors
-langchain
-langchain-huggingface
-langgraph
-python-dotenv
-requests
-pydantic
-gunicorn

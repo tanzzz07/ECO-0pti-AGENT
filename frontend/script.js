@@ -1,4 +1,53 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+  const token = localStorage.getItem("token");
+  
+
+  if (!token) {
+      window.location.href = "login.html";
+      return;
+  }
+
+  const role = localStorage.getItem("role");
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    if(role === "admin"){
+
+        const adminBtn =
+            document.getElementById("admin-btn");
+
+        if(adminBtn){
+            adminBtn.style.display =
+                "inline-block";
+        }
+    }
+
+});
+
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => {
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("username");
+
+      window.location.href = "login.html";
+    });
+
+  // KEEP ALL YOUR EXISTING CODE BELOW THIS
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => {
+
+      localStorage.removeItem("token");
+
+      window.location.href = "login.html";
+    });
   const form = document.getElementById("analysis-form");
   const resultsArea = document.getElementById("results-area");
 
@@ -164,8 +213,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch("/analyze", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-        },
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`
+},
         body: JSON.stringify(data),
       });
 

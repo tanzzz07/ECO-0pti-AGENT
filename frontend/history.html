@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Analysis History</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+```
+<h1>📜 Analysis History</h1>
+
+<button onclick="window.location.href='dashboard.html'">
+    ← Back to Dashboard
+</button>
+
+<div id="history-container">
+    Loading...
+</div>
+```
+
+</div>
+
+<script>
+
+const token = localStorage.getItem("token");
+
+if (!token) {
+    window.location.href = "login.html";
+}
+
+async function loadHistory() {
+
+    try {
+
+        const response = await fetch(
+            "/history",
+            {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+        );
+
+        const analyses = await response.json();
+
+        const container =
+            document.getElementById(
+                "history-container"
+            );
+
+        if (analyses.length === 0) {
+
+            container.innerHTML =
+                "<p>No analyses found.</p>";
+
+            return;
+        }
+
+        container.innerHTML =
+            analyses.map(a => `
+                <div class="card">
+
+                    <h3>
+                        Analysis #${a.id}
+                    </h3>
+
+                    <p>
+                        Date:
+                        ${new Date(
+                            a.created_at
+                        ).toLocaleString()}
+                    </p>
+
+                    <p>
+                        Total Emissions:
+                        <strong>
+                            ${a.total_emissions}
+                            kg/month
+                        </strong>
+                    </p>
+
+                    <p>
+                        ${a.optimizer_output}
+                    </p>
+
+                    <button
+                        onclick="downloadPDF(${a.id})"
+                    >
+                        Download PDF
+                    </button>
+
+                </div>
+            `).join("");
+
+    }
+    catch(error) {
+
+        document.getElementById(
+            "history-container"
+        ).innerHTML =
+            "<p>Error loading history.</p>";
+
+        console.error(error);
+    }
+}
+
+async function downloadPDF(id) {
+
+    try {
+
+        const response = await fetch(
+            `/analysis/${id}/pdf`,
+            {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                "Failed to download PDF"
+            );
+        }
+
+        const blob =
+            await response.blob();
+
+        const url =
+            window.URL.createObjectURL(blob);
+
+        const a =
+            document.createElement("a");
+
+        a.href = url;
+
+        a.download =
+            `report_${id}.pdf`;
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        a.remove();
+
+        window.URL.revokeObjectURL(url);
+
+    }
+    catch(error) {
+
+        alert(
+            "Failed to download PDF"
+        );
+
+        console.error(error);
+    }
+}
+
+loadHistory();
+
+</script>
+
+</body>
+</html>
