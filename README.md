@@ -52,7 +52,7 @@ Check out the live application here: **[Eco-Opti-Agent Live](https://huggingface
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/Satyaprakash7325/Eco_Opti_Agent.git
+   git clone https://github.com/tanzzz07/ECO-0pti-AGENT.git
    cd Eco_Opti_Agent
    ```
 
