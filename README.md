@@ -74,13 +74,6 @@ Check out the live application here: **[Eco-Opti-Agent Live](https://huggingface
    ```
    Navigate to `http://localhost:7860` in your browser.
 
-## ☁️ Render Deployment
-
-Deploying this app is a breeze using the included Render Blueprint:
-1. Push this repository to GitHub.
-2. Go to the [Render Dashboard](https://dashboard.render.com/) and create a new **Blueprint**.
-3. Select this repository. Render will automatically detect `render.yaml` and deploy both the backend and frontend.
-4. Add your `GOOGLE_API_KEY` as an environment variable in the Render dashboard.
 
 ## 📂 Project Structure
 
