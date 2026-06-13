@@ -35,8 +35,11 @@ flowchart TD
 
 | Git event | CI | Docker validation | Hugging Face deployment |
 |---|---:|---:|---:|
+| Pull request to `develop` or `main` | Yes | Yes | No |
 | Push to `develop` | Yes | Yes | No |
 | Push to `main` | Yes | Yes | Yes, after CI succeeds |
+| Manual CI run | Yes | Yes | No |
+| Manual CD run | No | Previously validated commit | Yes |
 | Push to another branch | No | No | No |
 
 The deployment target is
@@ -73,9 +76,12 @@ in GitHub Actions and is not added to the application container.
 4. Push the files to `develop` to validate CI.
 5. Merge or push the validated commit to `main`.
 6. Open the GitHub **Actions** tab and verify that `CI` succeeds, followed by
-   `CD`.
-7. Open the Space and inspect its build logs if the Hugging Face Docker build
-   is still in progress.
+   `CD`. CD waits up to 10 minutes for the Space `/ping` health check.
+7. Open the Space and inspect its build logs if the health check times out.
+
+The CD workflow can also be started manually. Supply a previously validated
+commit SHA to deploy that exact revision, or leave the field empty to deploy
+the current `main` revision.
 
 Generate a suitable JWT key locally with:
 
@@ -111,8 +117,9 @@ gunicorn --chdir backend --workers 1 --threads 4 --timeout 120 --bind 0.0.0.0:78
 
 | File | Responsibility |
 |---|---|
-| `.github/workflows/ci.yml` | Runs dependency installation, syntax checks, application import validation, and `docker build` on `main` and `develop` |
-| `.github/workflows/cd.yml` | Runs only after successful `main` CI, configures Space secrets, and atomically uploads the validated commit with the official `huggingface_hub` client |
+| `.github/workflows/ci.yml` | Runs syntax checks, application tests, a Docker build, and a live container health check for pull requests and pushes |
+| `.github/workflows/cd.yml` | Deploys successful `main` builds, supports manual rollback/redeploy, configures Space secrets, and verifies production health |
+| `tests/test_app.py` | Exercises health, frontend delivery, registration, and login without external API calls |
 | `Dockerfile` | Builds the Python 3.11 image, runs as a non-root user, exposes port 7860, adds a health check, and starts Gunicorn |
 | `.dockerignore` | Excludes local environments, secrets, caches, generated reports, Git metadata, and CI-only files from the image |
 | `requirements.txt` | Pins runtime dependencies for reproducible CI and Space builds |

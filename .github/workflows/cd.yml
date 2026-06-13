@@ -8,6 +8,12 @@ on:
       - completed
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: Git commit SHA to deploy (defaults to main)
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -20,23 +26,28 @@ jobs:
   deploy:
     name: Deploy to Hugging Face Space
     if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push'
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push'
+      )
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     environment: production
 
     env:
       SPACE_ID: tanzz07/Eco-0pti_AGent
+      SPACE_HEALTH_URL: https://tanzz07-eco-0pti-agent.hf.space/ping
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
       HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
+      DEPLOY_SHA: ${{ inputs.commit_sha || github.event.workflow_run.head_sha || github.sha }}
 
     steps:
       - name: Check out validated commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ env.DEPLOY_SHA }}
           fetch-depth: 1
 
       - name: Set up Python 3.11
@@ -53,6 +64,7 @@ jobs:
           test -n "$HF_TOKEN"
           test -n "$JWT_SECRET_KEY"
           test -n "$HUGGINGFACEHUB_API_TOKEN"
+          git rev-parse --verify "$DEPLOY_SHA^{commit}"
 
       - name: Configure Space secrets and deploy
         shell: python
@@ -95,8 +107,25 @@ jobs:
               delete_patterns=["*"],
               commit_message=(
                   "Deploy GitHub commit "
-                  + os.environ["GITHUB_SHA"]
+                  + os.environ["DEPLOY_SHA"]
               ),
           )
-        env:
-          GITHUB_SHA: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Verify deployed application
+        shell: bash
+        run: |
+          for attempt in {1..60}; do
+            response="$(curl --fail --silent --show-error \
+              --max-time 15 "$SPACE_HEALTH_URL" || true)"
+
+            if grep --quiet '"status":"ok"' <<<"$response"; then
+              echo "Deployment is healthy: $SPACE_HEALTH_URL"
+              exit 0
+            fi
+
+            echo "Waiting for Space rebuild ($attempt/60)..."
+            sleep 10
+          done
+
+          echo "Space did not become healthy within 10 minutes."
+          exit 1
