@@ -5,19 +5,28 @@ on:
     branches:
       - main
       - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
-    name: Validate Python and Docker
+    name: Test application and image
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      DATABASE_URL: "sqlite:///:memory:"
+      JWT_SECRET_KEY: ci-only-jwt-secret-with-at-least-32-bytes
+      HUGGINGFACEHUB_API_TOKEN: ci-placeholder-token
 
     steps:
       - name: Check out repository
@@ -40,12 +49,35 @@ jobs:
           python -m py_compile backend/main.py
           python -m compileall -q backend
 
-      - name: Validate Flask application import
-        working-directory: backend
-        env:
-          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-          HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
-        run: python -c "from main import app; assert app.config['JWT_SECRET_KEY']"
+      - name: Run application smoke tests
+        run: python -m unittest discover -s tests -v
 
-      - name: Validate Docker image build
-        run: docker build --tag eco-opti-agent:${{ github.sha }} .
+      - name: Build Docker image
+        run: docker build --tag eco-opti-agent:ci .
+
+      - name: Smoke test Docker container
+        shell: bash
+        run: |
+          docker run --detach --rm \
+            --name eco-opti-agent-ci \
+            --publish 7860:7860 \
+            --env JWT_SECRET_KEY="$JWT_SECRET_KEY" \
+            --env HUGGINGFACEHUB_API_TOKEN="$HUGGINGFACEHUB_API_TOKEN" \
+            eco-opti-agent:ci
+
+          cleanup() {
+            docker stop eco-opti-agent-ci >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error \
+              http://127.0.0.1:7860/ping |
+              grep --quiet '"status":"ok"'; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker logs eco-opti-agent-ci
+          exit 1

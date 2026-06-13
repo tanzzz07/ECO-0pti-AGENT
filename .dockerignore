@@ -1,6 +1,7 @@
 .git
 .github
 .agents
+tests
 .venv
 .vscode
 **/__pycache__

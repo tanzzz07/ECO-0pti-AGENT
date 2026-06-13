@@ -217,25 +217,14 @@ def login():
 
     email = data.get("email")
     password = data.get("password")
-    
-    print("EMAIL RECEIVED:", email)
-    
-    
 
     user = User.query.filter_by(
     email=email).first()
-    
-    print("USER FOUND:", user)
 
     if not user:
         return jsonify({
             "error": "Invalid credentials"
         }), 401
-    
-    print(
-        "PASSWORD CHECK:",
-        check_password_hash(user.password_hash, password)
-    )    
 
     if not check_password_hash(
         user.password_hash,
@@ -541,8 +530,9 @@ def download_report(analysis_id):
     return send_file(
         pdf_path,
         as_attachment=True
-    )    
-print(app.url_map)
+    )
+
+
 if __name__== '__main__':
     app.run(
         host="0.0.0.0",
