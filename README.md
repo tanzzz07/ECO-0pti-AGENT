@@ -1,123 +1,153 @@
 ---
 title: Eco Opti Agent
-emoji: 🌱
+emoji: "\U0001F331"
 colorFrom: green
 colorTo: blue
 sdk: docker
+app_port: 7860
 pinned: false
 ---
-<div align="center">
-  <img src="frontend/FullLogo_NoBuffer.jpg" alt="EcoOpti Logo" width="200" style="border-radius:10px; margin-bottom:20px;" />
-  <h1>🌱 Eco-Opti-Agent</h1>
-  <p><strong>AI-Driven Carbon Optimization for Businesses</strong></p>
-  
-  [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen.svg)](https://huggingface.co/spaces/tanzz07/Eco-0pti_AGent))
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-</div>
 
-<br />
+# Eco Opti Agent
 
-Eco-Opti-Agent is a full-stack, multi-agent AI system designed to intelligently analyze and optimize carbon emissions for businesses. By leveraging a team of specialized AI agents, it breaks down complex emission patterns and delivers actionable, prioritized recommendations to drive real-world sustainability.
+Eco Opti Agent is a Flask, LangChain, and LangGraph application that serves a
+static HTML/CSS/JavaScript frontend and uses the Hugging Face Inference API for
+AI recommendations.
 
-## ✨ Key Features
+## Deployment Architecture
 
-- **🤖 Multi-Agent Architecture**: Specialized agents for Electricity, Transport, Fuel, and Green Infrastructure.
-- **📊 Smart Emission Predictor**: Calculates footprints based on real-world consumption patterns.
-- **⚡ Optimizer & Decision Agents**: Synthesizes raw data into the top 3 highest-impact sustainability actions.
-- **🎨 Interactive Dashboard**: Clean, responsive, and animated UI built with modern HTML/JS/CSS.
-- **🚀 Unified Flask Backend**: Serves both the REST API and the frontend client seamlessly.
-
-## 🧰 Tech Stack
-
-| Category         | Technologies                     |
-|------------------|----------------------------------|
-| **Frontend**     | HTML5, CSS3, Vanilla JavaScript  |
-| **Backend**      | Python, Flask, Gunicorn          |
-| **AI / Logic**   | LangChain, LangGraph, Google Gemini (1.5 Flash) |
-| **Deployment**   | Huggingface                      |
-
-## 🚀 Live Demo
-
-Check out the live application here: **[Eco-Opti-Agent Live](https://huggingface.co/spaces/tanzz07/Eco-0pti_AGent)**
-
-*(Note: The demo gracefully degrades to use mock data if an API key is not provided).*
-
-## 🛠️ Local Installation
-
-### Prerequisites
-- Python 3.10+
-- Git
-
-### Setup Instructions
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/tanzzz07/ECO-0pti-AGENT.git
-   cd Eco_Opti_Agent
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   cd backened
-   pip install -r requirement.txt
-   ```
-
-3. **Set up Environment Variables:**
-   Create a `.env` file in the `backened` directory and add your Google API Key (optional for mock mode):
-   ```env
-   GOOGLE_API_KEY=your_gemini_api_key_here
-   ```
-
-4. **Start the server:**
-   ```bash
-   python main.py
-   ```
-   Navigate to `http://localhost:7860` in your browser.
-
-
-## 📂 Project Structure
-
-```text
-Eco_Opti_Agent/
-├── backened/                 # Python Flask Backend
-│   ├── agents/               # LangChain AI Agents
-│   │   ├── decision_agent.py
-│   │   ├── electricity_agent.py
-│   │   ├── fuel_agent.py
-│   │   ├── greeninfra_agent.py
-│   │   ├── optimizer_agent.py
-│   │   └── transport_agent.py
-│   ├── main.py               # Flask App Entry Point
-│   ├── utils.py              # Helper Functions
-│   └── requirement.txt       # Python Dependencies
-├── frontend/                 # Static Web Assets
-│   ├── index.html            # Main UI
-│   ├── script.js             # API Integration & Logic
-│   ├── style.css             # Animations & Styling
-│   └── FullLogo_NoBuffer.jpg # Brand Logo
-├── render.yaml               # Render Deployment Blueprint
-└── README.md                 # Project Documentation
+```mermaid
+flowchart TD
+    A[Developer pushes code] --> B[GitHub: main or develop]
+    B --> C[CI workflow]
+    C --> D[Install Python 3.11 dependencies]
+    D --> E[Compile and import Flask application]
+    E --> F[Build Docker image]
+    F -->|develop| G[CI complete]
+    F -->|main and CI succeeds| H[CD workflow]
+    H --> I[Configure Hugging Face Space secrets]
+    I --> J[Upload validated commit to Space]
+    J --> K[Hugging Face builds Docker image]
+    K --> L[Gunicorn serves app on port 7860]
 ```
 
-## 🤝 Contributing
+## CI/CD Behavior
 
-Contributions, issues, and feature requests are welcome!
-1. Fork the project.
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+| Git event | CI | Docker validation | Hugging Face deployment |
+|---|---:|---:|---:|
+| Pull request to `develop` or `main` | Yes | Yes | No |
+| Push to `develop` | Yes | Yes | No |
+| Push to `main` | Yes | Yes | Yes, after CI succeeds |
+| Manual CI run | Yes | Yes | No |
+| Manual CD run | No | Previously validated commit | Yes |
+| Push to another branch | No | No | No |
 
-## 📝 License
+The deployment target is
+[`tanzz07/Eco-0pti_AGent`](https://huggingface.co/spaces/tanzz07/Eco-0pti_AGent).
+The Space identifier contains a zero in `0pti`; keep the spelling and casing
+unchanged.
 
-Distributed under the MIT License. See `LICENSE` for more information.
+## Required GitHub Secrets
 
-## 📞 Support
+Open the GitHub repository, then go to **Settings > Secrets and variables >
+Actions > New repository secret** and create:
 
-For any questions, support, or collaboration, please contact:
-📧 **tanmaypradhan31@gmail.com**
+| Secret | Purpose |
+|---|---|
+| `HF_TOKEN` | Hugging Face write token used only by CD to update the Space |
+| `JWT_SECRET_KEY` | Strong random key used by Flask-JWT-Extended |
+| `HUGGINGFACEHUB_API_TOKEN` | Hugging Face inference token used by the AI agents |
 
----
-<div align="center">
-  <i>Built to make the world a greener place.</i>
-</div>
+Create `HF_TOKEN` at
+[`huggingface.co/settings/tokens`](https://huggingface.co/settings/tokens) with
+write access to the target Space. Never commit any token or `.env` file.
+
+The CD workflow copies `JWT_SECRET_KEY` and `HUGGINGFACEHUB_API_TOKEN` into the
+Space's encrypted secrets before uploading the application. `HF_TOKEN` remains
+in GitHub Actions and is not added to the application container.
+
+## Initial Setup
+
+1. Confirm that the Hugging Face Space `tanzz07/Eco-0pti_AGent` exists and uses
+   the Docker SDK.
+2. Add all three GitHub repository secrets listed above.
+3. In GitHub, optionally create an environment named `production`. Do not add
+   required reviewers if deployment must remain fully automatic.
+4. Push the files to `develop` to validate CI.
+5. Merge or push the validated commit to `main`.
+6. Open the GitHub **Actions** tab and verify that `CI` succeeds, followed by
+   `CD`. CD waits up to 10 minutes for the Space `/ping` health check.
+7. Open the Space and inspect its build logs if the health check times out.
+
+The CD workflow can also be started manually. Supply a previously validated
+commit SHA to deploy that exact revision, or leave the field empty to deploy
+the current `main` revision.
+
+Generate a suitable JWT key locally with:
+
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(64))"
+```
+
+## Local Development
+
+```bash
+python -m venv .venv
+```
+
+On Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+$env:JWT_SECRET_KEY = "replace-with-a-local-secret"
+$env:HUGGINGFACEHUB_API_TOKEN = "replace-with-an-inference-token"
+python backend/main.py
+```
+
+The application is available at `http://localhost:7860`.
+
+Production-style local execution:
+
+```bash
+gunicorn --chdir backend --workers 1 --threads 4 --timeout 120 --bind 0.0.0.0:7860 main:app
+```
+
+## Generated and Updated Files
+
+| File | Responsibility |
+|---|---|
+| `.github/workflows/ci.yml` | Runs syntax checks, application tests, a Docker build, and a live container health check for pull requests and pushes |
+| `.github/workflows/cd.yml` | Deploys successful `main` builds, supports manual rollback/redeploy, configures Space secrets, and verifies production health |
+| `tests/test_app.py` | Exercises health, frontend delivery, registration, and login without external API calls |
+| `Dockerfile` | Builds the Python 3.11 image, runs as a non-root user, exposes port 7860, adds a health check, and starts Gunicorn |
+| `.dockerignore` | Excludes local environments, secrets, caches, generated reports, Git metadata, and CI-only files from the image |
+| `requirements.txt` | Pins runtime dependencies for reproducible CI and Space builds |
+| `backend/main.py` | Reads JWT and database configuration from environment variables and supports the platform `PORT` value |
+| `README.md` | Defines Docker Space metadata and documents CI/CD setup and operations |
+
+## Runtime Notes
+
+- The default database remains SQLite at `backend/instance/ecoopti.db`.
+- Set `DATABASE_URL` to override the database connection string.
+- A basic Hugging Face Space filesystem is ephemeral. For durable production
+  history, attach persistent storage or migrate to a managed PostgreSQL
+  database.
+- Generated PDF reports are runtime data and are excluded from Git and Docker
+  build context.
+- Gunicorn uses one worker with four threads because SQLite initialization and
+  writes are not safe across multiple worker processes. Increase the process
+  count only after migrating to a server database such as PostgreSQL.
+
+## Pipeline Result
+
+```text
+Git push
+  -> GitHub Actions CI
+  -> Python and project validation
+  -> Docker build validation
+  -> GitHub Actions CD on main
+  -> Hugging Face Space upload
+  -> Hugging Face Docker rebuild
+  -> Updated production application
+```
