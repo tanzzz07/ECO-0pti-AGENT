@@ -34,7 +34,7 @@ Eco-Opti-Agent is a full-stack, multi-agent AI system designed to intelligently 
 | **Frontend**     | HTML5, CSS3, Vanilla JavaScript  |
 | **Backend**      | Python, Flask, Gunicorn          |
 | **AI / Logic**   | LangChain, LangGraph, Google Gemini (1.5 Flash) |
-| **Deployment**   | Render                           |
+| **Deployment**   | Huggingface                      |
 
 ## 🚀 Live Demo
 
