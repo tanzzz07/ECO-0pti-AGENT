@@ -5,20 +5,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
-llm_endpoint = HuggingFaceEndpoint(
-    repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
-    task="text-generation",
-    max_new_tokens=512,
-    do_sample=False,
-    huggingfacehub_api_token=os.getenv(
-        "HUGGINGFACEHUB_API_TOKEN",
-        "dummy_key"
+llm = None
+try:
+    llm_endpoint = HuggingFaceEndpoint(
+        repo_id="Qwen/Qwen2.5-72B-Instruct",
+        task="text-generation",
+        max_new_tokens=512,
+        do_sample=False,
+        huggingfacehub_api_token=os.getenv("HUGGINGFACEHUB_API_TOKEN", "dummy_key")
     )
-)
-
-llm = ChatHuggingFace(llm=llm_endpoint)
-
+    llm = ChatHuggingFace(llm=llm_endpoint)
+except Exception as e:
+    print(f"Electricity Agent LLM Init Warning: {e}")
 
 electricity_prompt = ChatPromptTemplate.from_messages([
     (
@@ -45,95 +43,47 @@ electricity_prompt = ChatPromptTemplate.from_messages([
 
 
 def run_electricity_agent(input_data):
-
     input_data.setdefault("lighting_type", "LED")
 
     LED_WATTAGE = 10
     AC_WATTAGE_KW = 1.5
-
     num_lights = 10
 
-    light_usage_hours = input_data.get(
-        "light_usage_hours_per_day",
-        0
-    )
+    light_usage_hours = input_data.get("light_usage_hours_per_day", 0)
+    ac_units = input_data.get("number_of_ac_units", 0)
+    ac_usage_hours = input_data.get("ac_usage_hours_per_day", 0)
 
-    ac_units = input_data.get(
-        "number_of_ac_units",
-        0
-    )
+    monthly_kwh_lights = (num_lights * LED_WATTAGE * light_usage_hours * 30) / 1000
+    monthly_kwh_ac = ac_units * AC_WATTAGE_KW * ac_usage_hours * 30
+    total_kwh_monthly = monthly_kwh_lights + monthly_kwh_ac
 
-    ac_usage_hours = input_data.get(
-        "ac_usage_hours_per_day",
-        0
-    )
-
-    monthly_kwh_lights = (
-        num_lights *
-        LED_WATTAGE *
-        light_usage_hours *
-        30
-    ) / 1000
-
-    monthly_kwh_ac = (
-        ac_units *
-        AC_WATTAGE_KW *
-        ac_usage_hours *
-        30
-    )
-
-    total_kwh_monthly = (
-        monthly_kwh_lights +
-        monthly_kwh_ac
-    )
-
-    electricity_emission = round(
-        total_kwh_monthly * 0.82,
-        2
-    )
-
+    electricity_emission = round(total_kwh_monthly * 0.82, 2)
     input_data["estimated_co2_emission"] = electricity_emission
 
-    try:
+    if llm:
+        try:
+            chain = electricity_prompt | llm
+            response = chain.invoke(input_data)
 
-        chain = electricity_prompt | llm
+            response_text = ""
+            if hasattr(response, "content"):
+                response_text = response.content
+            else:
+                response_text = str(response)
 
-        response = chain.invoke(input_data)
+            suggestions = [
+                line.strip("-• ")
+                for line in response_text.split("\n")
+                if line.strip()
+            ]
 
-        print(
-            f"Electricity Agent LLM Response: {response}"
-        )
+            if len(suggestions) >= 3:
+                return suggestions[:3], electricity_emission
+        except Exception as e:
+            print(f"Error in Electricity Agent LLM: {e}")
 
-        response_text = ""
-
-        if hasattr(response, "content"):
-            response_text = response.content
-        else:
-            response_text = str(response)
-
-        suggestions = [
-            line.strip("-• ")
-            for line in response_text.split("\n")
-            if line.strip()
-        ]
-
-        if len(suggestions) >= 3:
-            return suggestions[:3], electricity_emission
-
-        return [
-            "Switch to LED lighting",
-            "Use smart power strips",
-            "Reduce AC usage during peak hours"
-        ], electricity_emission
-
-    except Exception as e:
-
-        print(
-            f"Error in Electricity Agent: {e}"
-        )
-
-        return [
-            "Switch to LED lighting",
-            "Use smart power strips",
-            "Reduce AC usage during peak hours"
-        ], electricity_emission
+    return [
+        "Switch all lighting fixtures to energy-efficient LED technology",
+        "Install smart thermostats and schedule AC usage during occupancy only",
+        "Deploy smart power strips to eliminate phantom standby loads"
+    ], electricity_emission

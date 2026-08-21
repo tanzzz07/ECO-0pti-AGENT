@@ -10,23 +10,27 @@ load_dotenv()
 class FuelSuggestions(BaseModel):
     suggestions: list[str] = Field(..., description="A list of three actionable suggestions for reducing emissions from fuel usage.")
 
-llm_endpoint = HuggingFaceEndpoint(
-    repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
-    task="text-generation",
-    max_new_tokens=512,
-    do_sample=False,
-    huggingfacehub_api_token=os.getenv("HUGGINGFACEHUB_API_TOKEN", "dummy_key")
-)
-llm = ChatHuggingFace(llm=llm_endpoint)
+llm = None
+try:
+    llm_endpoint = HuggingFaceEndpoint(
+        repo_id="Qwen/Qwen2.5-72B-Instruct",
+        task="text-generation",
+        max_new_tokens=512,
+        do_sample=False,
+        huggingfacehub_api_token=os.getenv("HUGGINGFACEHUB_API_TOKEN", "dummy_key")
+    )
+    llm = ChatHuggingFace(llm=llm_endpoint)
+except Exception as e:
+    print(f"Fuel Agent LLM Init Warning: {e}")
 
 parser = PydanticOutputParser(pydantic_object=FuelSuggestions)
 
 def calculate_fuel_emissions(uses_diesel, uses_lpg):
     emission = 0
     if uses_diesel:
-        emission += 200  # Arbitrary base kg for diesel generator
+        emission += 200  # Base kg for diesel generator
     if uses_lpg:
-        emission += 150  # Arbitrary base kg for LPG
+        emission += 150  # Base kg for LPG
     return float(emission)
 
 fuel_prompt = ChatPromptTemplate.from_messages([
@@ -43,16 +47,26 @@ def run_fuel_agent(input_data):
     input_data["uses_diesel"] = uses_diesel
     input_data["uses_lpg"] = uses_lpg
     
-    try:
-        _prompt = fuel_prompt.partial(format_instructions=parser.get_format_instructions())
-        chain = _prompt | llm | parser
-        response = chain.invoke(input_data)
-        
-        if response and hasattr(response, "suggestions"):
-            return response.suggestions, fuel_emission
-        else:
-            return ["No fuel suggestions available."], fuel_emission
+    if llm:
+        try:
+            _prompt = fuel_prompt.partial(format_instructions=parser.get_format_instructions())
+            chain = _prompt | llm | parser
+            response = chain.invoke(input_data)
             
-    except Exception as e:
-        print(f"Error in Fuel Agent: {e}")
-        return [f"Error: {str(e)}"], fuel_emission
+            if response and hasattr(response, "suggestions") and len(response.suggestions) > 0:
+                return response.suggestions[:3], fuel_emission
+        except Exception as e:
+            print(f"Error in Fuel Agent LLM: {e}")
+            
+    # Default domain recommendations if LLM is unreachable or errors
+    default_suggestions = []
+    if uses_diesel:
+        default_suggestions.append("Minimize generator idle time and conduct routine fuel injector servicing.")
+    if uses_lpg:
+        default_suggestions.append("Inspect LPG/Propane lines for minor leaks and optimize burner air-fuel ratios.")
+    default_suggestions.append("Consider battery energy storage systems (BESS) as an alternative to fossil fuel backup.")
+    
+    if len(default_suggestions) < 3:
+        default_suggestions.append("Transition to cleaner alternative fuels or renewable grid backup sources.")
+
+    return default_suggestions[:3], fuel_emission
