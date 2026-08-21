@@ -1,5 +1,6 @@
 from langchain_core.runnables import RunnableLambda
 from langchain_core.output_parsers import StrOutputParser
+# pyrefly: ignore [missing-import]
 from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
 from langchain_core.prompts import ChatPromptTemplate
 import os
@@ -14,6 +15,7 @@ try:
         task="text-generation",
         max_new_tokens=512,
         do_sample=False,
+        timeout=4.0,
         huggingfacehub_api_token=os.getenv("HUGGINGFACEHUB_API_TOKEN", "dummy_key")
     )
     llm = ChatHuggingFace(llm=llm_endpoint)
