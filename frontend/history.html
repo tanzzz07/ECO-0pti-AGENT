@@ -1,106 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Analysis History - Eco Opti Agent</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="FullLogo_NoBuffer.jpg" type="image/jpeg">
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="FullLogo_NoBuffer.jpg" type="image/jpeg" />
+  </head>
+  <body class="login-page">
+    <div class="login-glow login-glow-one" aria-hidden="true"></div>
+    <div class="login-glow login-glow-two" aria-hidden="true"></div>
 
-<div class="container">
-    <header>
-        <h1>📜 Analysis History</h1>
-        <p>Review past sustainability reports and download PDF summaries</p>
-    </header>
+    <div class="dashboard-container">
+      <!-- App Header Navigation -->
+      <header class="app-header">
+        <nav class="app-nav">
+          <a class="nav-brand" href="dashboard.html">
+            <img src="FullLogo_NoBuffer.jpg" alt="Eco Opti Logo" />
+            <span>Eco Opti</span>
+          </a>
 
-    <div style="padding: 20px;">
-        <button class="submit-btn" style="width: auto; margin: 0 0 20px 0; padding: 10px 20px; font-size: 1em;" onclick="window.location.href='dashboard.html'">
-            ← Back to Dashboard
-        </button>
+          <div class="nav-links">
+            <a class="nav-link" href="dashboard.html">📊 Dashboard</a>
+            <a class="nav-link active" href="history.html">📜 History</a>
+            <a class="nav-link" id="admin-btn" href="admin.html" style="display: none;">🛡️ Admin</a>
+          </div>
 
+          <div class="nav-actions">
+            <div class="user-pill" id="user-profile-pill">
+              <span id="nav-username">User</span>
+              <span class="user-role-tag" id="nav-role">user</span>
+            </div>
+            <button class="btn-nav-logout" id="logout-btn" type="button">
+              <span>Logout</span>
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      <!-- Hero Banner -->
+      <div class="dashboard-hero">
+        <h1>📜 Emissions Analysis History</h1>
+        <p>
+          Review your past carbon audits, examine AI-generated recommendations, and download official PDF summaries.
+        </p>
+      </div>
+
+      <!-- History Content Card -->
+      <section class="card" style="padding: 28px;">
         <div id="history-container">
-            <p>Loading your past analyses...</p>
+          <div class="loading">🔄 Fetching your historical reports...</div>
         </div>
+      </section>
     </div>
-</div>
 
-<script>
-const token = localStorage.getItem("token");
+    <script>
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
+      const username = localStorage.getItem("username");
 
-if (!token) {
-    window.location.href = "login.html";
-}
+      if (!token) {
+        window.location.href = "login.html";
+      }
 
-async function loadHistory() {
-    try {
-        const response = await fetch("/history", {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to load history");
+      document.addEventListener("DOMContentLoaded", () => {
+        // Display User Info
+        if (username) {
+          document.getElementById("nav-username").textContent = username;
+        }
+        if (role) {
+          document.getElementById("nav-role").textContent = role;
+        }
+        if (role === "admin") {
+          const adminBtn = document.getElementById("admin-btn");
+          if (adminBtn) adminBtn.style.display = "inline-flex";
         }
 
-        const analyses = await response.json();
+        // Logout logic
+        document.getElementById("logout-btn").addEventListener("click", () => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("role");
+          localStorage.removeItem("username");
+          window.location.href = "login.html";
+        });
+
+        loadHistory();
+      });
+
+      async function loadHistory() {
         const container = document.getElementById("history-container");
 
-        if (!Array.isArray(analyses) || analyses.length === 0) {
-            container.innerHTML = "<p>No past analyses found.</p>";
-            return;
-        }
-
-        container.innerHTML = analyses.map(a => `
-            <div class="card">
-                <h3>Analysis #${a.id}</h3>
-                <p><strong>Date:</strong> ${new Date(a.created_at).toLocaleString()}</p>
-                <p><strong>Total Emissions:</strong> ${a.total_emissions} kg CO₂ / month</p>
-                <p style="margin-top: 10px;"><strong>Key Output:</strong> ${a.optimizer_output}</p>
-                <button class="submit-btn" style="width: auto; margin: 15px 0 0 0; padding: 8px 16px; font-size: 0.9em;" onclick="downloadPDF(${a.id})">
-                    📥 Download PDF Report
-                </button>
-            </div>
-        `).join("");
-    }
-    catch(error) {
-        document.getElementById("history-container").innerHTML = "<p style='color: red;'>Error loading analysis history.</p>";
-        console.error(error);
-    }
-}
-
-async function downloadPDF(id) {
-    try {
-        const response = await fetch(`/analysis/${id}/pdf`, {
+        try {
+          const response = await fetch("/history", {
             headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        });
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-        if (!response.ok) {
-            throw new Error("Failed to download PDF");
+          if (!response.ok) {
+            throw new Error("Failed to load history");
+          }
+
+          const analyses = await response.json();
+
+          if (!Array.isArray(analyses) || analyses.length === 0) {
+            container.innerHTML = `
+              <div style="text-align: center; padding: 40px 20px;">
+                <div style="font-size: 3rem; margin-bottom: 12px;">🌱</div>
+                <h3 style="color: #17372c; margin-bottom: 8px;">No Past Reports Found</h3>
+                <p style="color: #667a72; margin-bottom: 20px;">You haven't run any carbon emission analyses yet.</p>
+                <a href="dashboard.html" class="nav-link active" style="display: inline-flex;">Run Your First Analysis</a>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = analyses
+            .map(
+              (a) => `
+              <div class="history-card-item">
+                <div class="history-card-top">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="history-id-badge">Report #${a.id}</span>
+                    <span class="history-date">📅 ${new Date(a.created_at).toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <div class="history-emissions-highlight">
+                  Total Monthly Footprint: ${a.total_emissions} kg CO₂
+                </div>
+
+                <div style="margin-bottom: 16px; background: #f8fbf9; padding: 14px; border-radius: 12px; border: 1px solid #e1efe8;">
+                  <strong style="color: #17372c; display: block; margin-bottom: 6px;">Key Insights:</strong>
+                  <div style="color: #34495e; font-size: 0.93rem; line-height: 1.5;">${a.optimizer_output}</div>
+                </div>
+
+                <button class="pdf-btn" id="pdf-btn-${a.id}" onclick="downloadPDF(${a.id})">
+                  <span>📥 Download PDF Report</span>
+                </button>
+              </div>
+            `
+            )
+            .join("");
+        } catch (error) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 30px; color: #b33f3f;">
+              <h3>❌ Unable to Load History</h3>
+              <p>${error.message || "Please check your connection and try again."}</p>
+            </div>
+          `;
+          console.error(error);
         }
+      }
 
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `report_${id}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-    }
-    catch(error) {
-        alert("Failed to download PDF report");
-        console.error(error);
-    }
-}
+      async function downloadPDF(id) {
+        const btn = document.getElementById(`pdf-btn-${id}`);
+        const originalText = btn.innerHTML;
 
-loadHistory();
-</script>
+        btn.disabled = true;
+        btn.innerHTML = `<span>⏳ Generating PDF...</span>`;
 
-</body>
+        try {
+          const response = await fetch(`/analysis/${id}/pdf`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to download PDF report");
+          }
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `report_${id}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+        } catch (error) {
+          alert(`Error downloading PDF: ${error.message}`);
+          console.error(error);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        }
+      }
+    </script>
+  </body>
 </html>
