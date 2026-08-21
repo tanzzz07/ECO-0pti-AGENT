@@ -1,30 +1,32 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
 <head>
-    <title>Analysis History</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis History - Eco Opti Agent</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="FullLogo_NoBuffer.jpg" type="image/jpeg">
 </head>
 <body>
 
 <div class="container">
+    <header>
+        <h1>📜 Analysis History</h1>
+        <p>Review past sustainability reports and download PDF summaries</p>
+    </header>
 
-```
-<h1>📜 Analysis History</h1>
+    <div style="padding: 20px;">
+        <button class="submit-btn" style="width: auto; margin: 0 0 20px 0; padding: 10px 20px; font-size: 1em;" onclick="window.location.href='dashboard.html'">
+            ← Back to Dashboard
+        </button>
 
-<button onclick="window.location.href='dashboard.html'">
-    ← Back to Dashboard
-</button>
-
-<div id="history-container">
-    Loading...
-</div>
-```
-
+        <div id="history-container">
+            <p>Loading your past analyses...</p>
+        </div>
+    </div>
 </div>
 
 <script>
-
 const token = localStorage.getItem("token");
 
 if (!token) {
@@ -32,135 +34,72 @@ if (!token) {
 }
 
 async function loadHistory() {
-
     try {
-
-        const response = await fetch(
-            "/history",
-            {
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
+        const response = await fetch("/history", {
+            headers: {
+                "Authorization": `Bearer ${token}`
             }
-        );
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to load history");
+        }
 
         const analyses = await response.json();
+        const container = document.getElementById("history-container");
 
-        const container =
-            document.getElementById(
-                "history-container"
-            );
-
-        if (analyses.length === 0) {
-
-            container.innerHTML =
-                "<p>No analyses found.</p>";
-
+        if (!Array.isArray(analyses) || analyses.length === 0) {
+            container.innerHTML = "<p>No past analyses found.</p>";
             return;
         }
 
-        container.innerHTML =
-            analyses.map(a => `
-                <div class="card">
-
-                    <h3>
-                        Analysis #${a.id}
-                    </h3>
-
-                    <p>
-                        Date:
-                        ${new Date(
-                            a.created_at
-                        ).toLocaleString()}
-                    </p>
-
-                    <p>
-                        Total Emissions:
-                        <strong>
-                            ${a.total_emissions}
-                            kg/month
-                        </strong>
-                    </p>
-
-                    <p>
-                        ${a.optimizer_output}
-                    </p>
-
-                    <button
-                        onclick="downloadPDF(${a.id})"
-                    >
-                        Download PDF
-                    </button>
-
-                </div>
-            `).join("");
-
+        container.innerHTML = analyses.map(a => `
+            <div class="card">
+                <h3>Analysis #${a.id}</h3>
+                <p><strong>Date:</strong> ${new Date(a.created_at).toLocaleString()}</p>
+                <p><strong>Total Emissions:</strong> ${a.total_emissions} kg CO₂ / month</p>
+                <p style="margin-top: 10px;"><strong>Key Output:</strong> ${a.optimizer_output}</p>
+                <button class="submit-btn" style="width: auto; margin: 15px 0 0 0; padding: 8px 16px; font-size: 0.9em;" onclick="downloadPDF(${a.id})">
+                    📥 Download PDF Report
+                </button>
+            </div>
+        `).join("");
     }
     catch(error) {
-
-        document.getElementById(
-            "history-container"
-        ).innerHTML =
-            "<p>Error loading history.</p>";
-
+        document.getElementById("history-container").innerHTML = "<p style='color: red;'>Error loading analysis history.</p>";
         console.error(error);
     }
 }
 
 async function downloadPDF(id) {
-
     try {
-
-        const response = await fetch(
-            `/analysis/${id}/pdf`,
-            {
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
+        const response = await fetch(`/analysis/${id}/pdf`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
             }
-        );
+        });
 
         if (!response.ok) {
-            throw new Error(
-                "Failed to download PDF"
-            );
+            throw new Error("Failed to download PDF");
         }
 
-        const blob =
-            await response.blob();
-
-        const url =
-            window.URL.createObjectURL(blob);
-
-        const a =
-            document.createElement("a");
-
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
         a.href = url;
-
-        a.download =
-            `report_${id}.pdf`;
-
+        a.download = `report_${id}.pdf`;
         document.body.appendChild(a);
-
         a.click();
-
         a.remove();
-
         window.URL.revokeObjectURL(url);
-
     }
     catch(error) {
-
-        alert(
-            "Failed to download PDF"
-        );
-
+        alert("Failed to download PDF report");
         console.error(error);
     }
 }
 
 loadHistory();
-
 </script>
 
 </body>

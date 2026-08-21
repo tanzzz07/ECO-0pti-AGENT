@@ -503,34 +503,6 @@ def get_all_users():
         }
         for user in users
     ])
-    
-@app.route('/analysis/<int:analysis_id>/pdf', methods=['GET'])
-@jwt_required()
-def download_report(analysis_id):
-
-    user_id = int(get_jwt_identity())
-
-    analysis = Analysis.query.filter_by(
-        id=analysis_id,
-        user_id=user_id
-    ).first()
-
-    if not analysis:
-        return jsonify({
-            "error": "Analysis not found"
-        }), 404
-
-    pdf_path = f"reports/report_{analysis.id}.pdf"
-
-    generate_report(
-        pdf_path,
-        analysis
-    )
-
-    return send_file(
-        pdf_path,
-        as_attachment=True
-    )
 
 
 if __name__== '__main__':
