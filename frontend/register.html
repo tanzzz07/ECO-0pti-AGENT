@@ -1,71 +1,377 @@
 <!DOCTYPE html>
-
-<html>
-<head>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Create an account on Eco Opti Agent to track and reduce your environmental impact."
+    />
     <title>Register - Eco Opti Agent</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-<div class="container">
-    <div class="card">
-        <h2>Register</h2>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="FullLogo_NoBuffer.jpg" type="image/jpeg" />
+  </head>
+  <body class="login-page">
+    <div class="login-glow login-glow-one" aria-hidden="true"></div>
+    <div class="login-glow login-glow-two" aria-hidden="true"></div>
 
-```
-    <input type="text" id="username" placeholder="Username">
-    <br><br>
+    <main class="login-shell">
+      <section class="login-story" aria-labelledby="register-welcome-title">
+        <a class="login-brand" href="login.html" aria-label="Eco Opti Agent home">
+          <img src="FullLogo_NoBuffer.jpg" alt="" />
+          <span>Eco Opti</span>
+        </a>
 
-    <input type="email" id="email" placeholder="Email">
-    <br><br>
+        <div class="story-content">
+          <p class="eyebrow">Join the Eco Opti Network</p>
+          <h1 id="register-welcome-title">Start your journey towards a lighter footprint.</h1>
+          <p class="story-copy">
+            Create an account to track emissions, uncover practical AI improvements,
+            and build a more sustainable business one decision at a time.
+          </p>
 
-    <input type="password" id="password" placeholder="Password">
-    <br><br>
+          <div class="impact-preview" aria-label="Registration benefits">
+            <div class="impact-card">
+              <span class="impact-icon" aria-hidden="true">01</span>
+              <div>
+                <strong>Quick Onboarding</strong>
+                <span>Instant setup for your organization</span>
+              </div>
+            </div>
+            <div class="impact-card">
+              <span class="impact-icon" aria-hidden="true">02</span>
+              <div>
+                <strong>Data-Driven Insights</strong>
+                <span>AI optimization & actionable metrics</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <button onclick="registerUser()">Register</button>
+        <p class="story-note">Built for better business decisions.</p>
+      </section>
 
-    <p>
-        Already have an account?
-        <a href="login.html">Login</a>
-    </p>
-</div>
-```
+      <section class="login-panel" aria-labelledby="register-title">
+        <div class="login-form-wrap">
+          <div class="login-heading">
+            <span class="login-kicker">Get Started</span>
+            <h2 id="register-title">Create your account</h2>
+            <p>Enter your details below to register for Eco Opti Agent.</p>
+          </div>
 
-</div>
+          <form id="register-form" novalidate>
+            <div class="login-field">
+              <label for="username">Username</label>
+              <div class="input-wrap">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder="Choose a username"
+                  autocomplete="username"
+                  required
+                />
+              </div>
+              <span class="field-error" id="username-error"></span>
+            </div>
 
-<script>
-async function registerUser(){
+            <div class="login-field">
+              <label for="email">Email address</label>
+              <div class="input-wrap">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 6h16v12H4zM4 7l8 6 8-6" />
+                </svg>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="you@company.com"
+                  autocomplete="email"
+                  required
+                />
+              </div>
+              <span class="field-error" id="email-error"></span>
+            </div>
 
-    const username =
-        document.getElementById("username").value;
+            <div class="login-field">
+              <div class="label-row">
+                <label for="password">Password</label>
+              </div>
+              <div class="input-wrap">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="5" y="10" width="14" height="10" rx="2" />
+                  <path d="M8 10V7a4 4 0 018 0v3" />
+                </svg>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Create a password"
+                  autocomplete="new-password"
+                  required
+                />
+                <button
+                  class="password-toggle"
+                  id="password-toggle"
+                  type="button"
+                  aria-label="Show password"
+                  aria-pressed="false"
+                >
+                  <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </svg>
+                  <svg class="eye-closed" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 3l18 18M10.6 6.2A10.8 10.8 0 0112 6c6 0 9.5 6 9.5 6a16.8 16.8 0 01-2.2 2.8M6.2 6.2C3.8 8 2.5 12 2.5 12s3.5 6 9.5 6a9.9 9.9 0 003.2-.5M9.9 9.9a3 3 0 004.2 4.2" />
+                  </svg>
+                </button>
+              </div>
+              <div class="password-strength-wrap" id="password-strength-wrap" style="display: none;">
+                <div class="strength-bar-bg">
+                  <div class="strength-bar-fill" id="strength-bar"></div>
+                </div>
+                <span class="strength-text" id="strength-text"></span>
+              </div>
+              <span class="field-error" id="password-error"></span>
+            </div>
 
-    const email =
-        document.getElementById("email").value;
+            <div class="login-field">
+              <div class="label-row">
+                <label for="confirm-password">Confirm Password</label>
+              </div>
+              <div class="input-wrap">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="5" y="10" width="14" height="10" rx="2" />
+                  <path d="M8 10V7a4 4 0 018 0v3" />
+                </svg>
+                <input
+                  type="password"
+                  id="confirm-password"
+                  name="confirm-password"
+                  placeholder="Re-enter your password"
+                  autocomplete="new-password"
+                  required
+                />
+                <button
+                  class="password-toggle"
+                  id="confirm-password-toggle"
+                  type="button"
+                  aria-label="Show confirm password"
+                  aria-pressed="false"
+                >
+                  <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </svg>
+                  <svg class="eye-closed" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 3l18 18M10.6 6.2A10.8 10.8 0 0112 6c6 0 9.5 6 9.5 6a16.8 16.8 0 01-2.2 2.8M6.2 6.2C3.8 8 2.5 12 2.5 12s3.5 6 9.5 6a9.9 9.9 0 003.2-.5M9.9 9.9a3 3 0 004.2 4.2" />
+                  </svg>
+                </button>
+              </div>
+              <span class="field-error" id="confirm-password-error"></span>
+            </div>
 
-    const password =
-        document.getElementById("password").value;
+            <div class="login-status" id="register-status" role="alert" aria-live="polite"></div>
 
-    const response = await fetch("/register", {
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body: JSON.stringify({
-            username,
-            email,
-            password
-        })
-    });
+            <button class="login-submit" id="register-submit" type="submit">
+              <span class="button-label">Create account</span>
+              <span class="button-loader" aria-hidden="true"></span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 12h14M14 7l5 5-5 5" />
+              </svg>
+            </button>
+          </form>
 
-    const data = await response.json();
+          <p class="register-prompt">
+            Already have an account?
+            <a href="login.html">Sign in</a>
+          </p>
+        </div>
+      </section>
+    </main>
 
-    if(response.ok){
-        alert("Registration Successful");
-        window.location.href =
-            "login.html";
-    }else{
-        alert(data.error);
-    }
-}
-</script>
+    <script>
+      const form = document.getElementById("register-form");
+      const usernameInput = document.getElementById("username");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const confirmPasswordInput = document.getElementById("confirm-password");
+      const passwordToggle = document.getElementById("password-toggle");
+      const confirmPasswordToggle = document.getElementById("confirm-password-toggle");
+      const submitButton = document.getElementById("register-submit");
+      const status = document.getElementById("register-status");
+      const passwordStrengthWrap = document.getElementById("password-strength-wrap");
+      const strengthBar = document.getElementById("strength-bar");
+      const strengthText = document.getElementById("strength-text");
 
-</body>
+      function setupPasswordToggle(button, input) {
+        button.addEventListener("click", () => {
+          const isShowing = input.type === "text";
+          input.type = isShowing ? "password" : "text";
+          button.setAttribute("aria-pressed", String(!isShowing));
+          button.setAttribute(
+            "aria-label",
+            isShowing ? "Show password" : "Hide password"
+          );
+          input.focus();
+        });
+      }
+
+      setupPasswordToggle(passwordToggle, passwordInput);
+      setupPasswordToggle(confirmPasswordToggle, confirmPasswordInput);
+
+      [usernameInput, emailInput, passwordInput, confirmPasswordInput].forEach((input) => {
+        input.addEventListener("input", () => {
+          input.closest(".login-field").classList.remove("has-error");
+          document.getElementById(`${input.id}-error`).textContent = "";
+          status.textContent = "";
+          status.className = "login-status";
+        });
+      });
+
+      passwordInput.addEventListener("input", () => {
+        const val = passwordInput.value;
+        if (!val) {
+          passwordStrengthWrap.style.display = "none";
+          return;
+        }
+        passwordStrengthWrap.style.display = "flex";
+
+        let score = 0;
+        if (val.length >= 6) score++;
+        if (val.length >= 10) score++;
+        if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        if (score <= 1) {
+          strengthBar.className = "strength-bar-fill weak";
+          strengthText.textContent = "Weak password";
+        } else if (score <= 3) {
+          strengthBar.className = "strength-bar-fill medium";
+          strengthText.textContent = "Medium strength";
+        } else {
+          strengthBar.className = "strength-bar-fill strong";
+          strengthText.textContent = "Strong password";
+        }
+      });
+
+      function showFieldError(input, message) {
+        input.closest(".login-field").classList.add("has-error");
+        document.getElementById(`${input.id}-error`).textContent = message;
+      }
+
+      function validateForm() {
+        let valid = true;
+        const username = usernameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        if (!username) {
+          showFieldError(usernameInput, "Please enter a username.");
+          valid = false;
+        } else if (username.length < 3) {
+          showFieldError(usernameInput, "Username must be at least 3 characters.");
+          valid = false;
+        } else if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+          showFieldError(
+            usernameInput,
+            "Username can only contain letters, numbers, and underscores."
+          );
+          valid = false;
+        }
+
+        if (!email) {
+          showFieldError(emailInput, "Please enter your email address.");
+          valid = false;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          showFieldError(emailInput, "Enter a valid email address.");
+          valid = false;
+        }
+
+        if (!password) {
+          showFieldError(passwordInput, "Please create a password.");
+          valid = false;
+        } else if (password.length < 6) {
+          showFieldError(passwordInput, "Password must be at least 6 characters.");
+          valid = false;
+        }
+
+        if (!confirmPassword) {
+          showFieldError(confirmPasswordInput, "Please confirm your password.");
+          valid = false;
+        } else if (password && confirmPassword !== password) {
+          showFieldError(confirmPasswordInput, "Passwords do not match.");
+          valid = false;
+        }
+
+        return valid;
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        status.textContent = "";
+        status.className = "login-status";
+
+        if (!validateForm()) {
+          const firstError = form.querySelector(".has-error input");
+          if (firstError) firstError.focus();
+          return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.classList.add("is-loading");
+
+        try {
+          const response = await fetch("/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: usernameInput.value.trim(),
+              email: emailInput.value.trim(),
+              password: passwordInput.value,
+            }),
+          });
+
+          let data = {};
+          try {
+            data = await response.json();
+          } catch (err) {
+            throw new Error("The server returned an unexpected response.");
+          }
+
+          if (!response.ok) {
+            throw new Error(data.error || "Registration failed. Please try again.");
+          }
+
+          status.textContent = "Registration successful! Redirecting to sign in...";
+          status.classList.add("is-success");
+          submitButton.classList.remove("is-loading");
+          submitButton.classList.add("is-success");
+          submitButton.querySelector(".button-label").textContent = "Account created";
+
+          window.setTimeout(() => {
+            window.location.href = "login.html";
+          }, 600);
+        } catch (error) {
+          status.textContent =
+            error instanceof TypeError
+              ? "Unable to reach the server. Check your connection and try again."
+              : error.message;
+          status.classList.add("is-error");
+          submitButton.disabled = false;
+          submitButton.classList.remove("is-loading");
+        }
+      });
+
+      document.addEventListener("pointermove", (event) => {
+        document.documentElement.style.setProperty("--pointer-x", `${event.clientX}px`);
+        document.documentElement.style.setProperty("--pointer-y", `${event.clientY}px`);
+      });
+    </script>
+  </body>
 </html>
