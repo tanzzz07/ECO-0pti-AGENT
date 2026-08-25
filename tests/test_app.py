@@ -84,6 +84,44 @@ class AppSmokeTests(unittest.TestCase):
         self.assertEqual(response.get_json(), {"error": "Invalid credentials"})
         response.close()
 
+    def test_register_rejects_duplicate_username(self):
+        user1 = {
+            "username": "shared-username",
+            "email": "user1@example.com",
+            "password": "password123",
+        }
+        user2 = {
+            "username": "shared-username",
+            "email": "user2@example.com",
+            "password": "password123",
+        }
+        res1 = self.client.post("/register", json=user1)
+        res2 = self.client.post("/register", json=user2)
+
+        self.assertEqual(res1.status_code, 201)
+        self.assertEqual(res2.status_code, 400)
+        self.assertEqual(res2.get_json(), {"error": "Username already taken"})
+        res1.close()
+        res2.close()
+
+    def test_login_is_case_insensitive_and_trimmed(self):
+        credentials = {
+            "username": "case-test",
+            "email": "Case.Test@Example.com",
+            "password": "secret-password",
+        }
+        self.client.post("/register", json=credentials)
+        login_res = self.client.post(
+            "/login",
+            json={
+                "email": "  case.test@example.com  ",
+                "password": "secret-password",
+            },
+        )
+        self.assertEqual(login_res.status_code, 200)
+        self.assertTrue(login_res.get_json()["access_token"])
+        login_res.close()
+
 
 if __name__ == "__main__":
     unittest.main()

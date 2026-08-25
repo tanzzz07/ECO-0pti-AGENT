@@ -120,10 +120,19 @@ from agents.decision_agent import run_decision_agent
 from flask import send_file
 from pdf_generator import generate_report
 
-from models import User, Analysis
+from models import db, User, Analysis
+from utils import (
+    sanitize_string,
+    validate_username,
+    validate_email,
+    sanitize_numeric
+)
 
 # Serve static files from the frontend directory
 app = Flask(__name__, static_folder='../frontend', static_url_path='/')
+
+os.makedirs(app.instance_path, exist_ok=True)
+
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
     "DATABASE_URL",
     "sqlite:///ecoopti.db"
@@ -178,48 +187,97 @@ class AgentState(TypedDict):
 @app.route('/register', methods=['POST'])
 def register():
 
-    data = request.get_json()
+    data = request.get_json() or {}
 
-    username = data.get("username")
-    email = data.get("email")
+    raw_username = data.get("username")
+    raw_email = data.get("email")
     password = data.get("password")
 
-    if not username or not email or not password:
+    if not raw_username or not raw_email or not password:
         return jsonify({
             "error": "Missing fields"
         }), 400
 
-    existing_user = User.query.filter_by(
+    username = sanitize_string(raw_username, max_length=100)
+    email = sanitize_string(raw_email, max_length=120).lower()
+    pwd = sanitize_string(password, max_length=255)
+
+    if not validate_username(username):
+        return jsonify({
+            "error": "Invalid username format"
+        }), 400
+
+    if not validate_email(email):
+        return jsonify({
+            "error": "Invalid email address"
+        }), 400
+
+    if not pwd or len(pwd) < 6:
+        return jsonify({
+            "error": "Password must be at least 6 characters"
+        }), 400
+
+    existing_email = User.query.filter_by(
         email=email
     ).first()
 
-    if existing_user:
+    if existing_email:
         return jsonify({
             "error": "User already exists"
         }), 400
 
-    user = User(
-        username=username,
-        email=email,
-        password_hash=generate_password_hash(password)
-    )
+    existing_username = User.query.filter_by(
+        username=username
+    ).first()
 
-    db.session.add(user)
-    db.session.commit()
+    if existing_username:
+        return jsonify({
+            "error": "Username already taken"
+        }), 400
 
-    return jsonify({
-        "message": "Registration successful"
-    }), 201
+    try:
+        user = User(
+            username=username,
+            email=email,
+            password_hash=generate_password_hash(pwd)
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+        return jsonify({
+            "message": "Registration successful"
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "error": "Registration failed due to a database error."
+        }), 500
+
 @app.route('/login', methods=['POST'])
 def login():
 
-    data = request.get_json()
+    data = request.get_json() or {}
 
-    email = data.get("email")
+    raw_email = data.get("email")
     password = data.get("password")
 
+    if not raw_email or not password:
+        return jsonify({
+            "error": "Invalid credentials"
+        }), 401
+
+    email = sanitize_string(raw_email, max_length=120).lower()
+    pwd = sanitize_string(password, max_length=255)
+
+    if not validate_email(email) or not pwd:
+        return jsonify({
+            "error": "Invalid credentials"
+        }), 401
+
     user = User.query.filter_by(
-    email=email).first()
+        email=email
+    ).first()
 
     if not user:
         return jsonify({
@@ -228,7 +286,7 @@ def login():
 
     if not check_password_hash(
         user.password_hash,
-        password
+        pwd
     ):
         return jsonify({
             "error": "Invalid credentials"
@@ -239,10 +297,10 @@ def login():
     )
 
     return jsonify({
-    "access_token": token,
-    "username": user.username,
-    "role": user.role
-}), 200
+        "access_token": token,
+        "username": user.username,
+        "role": user.role
+    }), 200
     
     
 @app.route('/analyze', methods=['POST'])
@@ -253,7 +311,21 @@ def analyze():
 
     try:
 
-        data = request.json
+        raw_data = request.get_json() or {}
+        data = {
+            "business_type": sanitize_string(raw_data.get("business_type"), max_length=50),
+            "lighting_type": sanitize_string(raw_data.get("lighting_type"), max_length=50),
+            "light_usage_hours_per_day": sanitize_numeric(raw_data.get("light_usage_hours_per_day"), min_val=0, max_val=24),
+            "number_of_ac_units": int(sanitize_numeric(raw_data.get("number_of_ac_units"), min_val=0, max_val=1000)),
+            "ac_usage_hours_per_day": sanitize_numeric(raw_data.get("ac_usage_hours_per_day"), min_val=0, max_val=24),
+            "monthly_electricity_bill": sanitize_numeric(raw_data.get("monthly_electricity_bill"), min_val=0, max_val=10000000),
+            "uses_diesel_generator": bool(raw_data.get("uses_diesel_generator")),
+            "uses_lpg_or_propane": bool(raw_data.get("uses_lpg_or_propane")),
+            "number_of_diesel_vehicles": int(sanitize_numeric(raw_data.get("number_of_diesel_vehicles"), min_val=0, max_val=10000)),
+            "average_km_per_vehicle_per_day": sanitize_numeric(raw_data.get("average_km_per_vehicle_per_day"), min_val=0, max_val=10000),
+            "uses_solar_panels": bool(raw_data.get("uses_solar_panels")),
+            "uses_energy_efficient_devices": bool(raw_data.get("uses_energy_efficient_devices"))
+        }
 
         if not os.getenv("HUGGINGFACEHUB_API_TOKEN"):
 
